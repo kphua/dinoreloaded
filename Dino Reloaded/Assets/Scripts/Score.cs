@@ -11,4 +11,7 @@ public class Score : MonoBehaviour
 		guiText.text = "Score: " + score;
 	}
 
+	void IncreaseScore(){
+		score += 100;
+	}
 }
