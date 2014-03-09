@@ -48,6 +48,7 @@
   <ItemGroup>
      <Compile Include="Assets\Scripts\FreeMovementMotor.js" />
      <Compile Include="Assets\Scripts\GUICounter.js" />
+     <Compile Include="Assets\Scripts\HealthBarScript.js" />
      <Compile Include="Assets\Scripts\MovementMotor.js" />
      <Compile Include="Assets\Scripts\PlayerMoveController.js" />
   </ItemGroup>
