@@ -3,23 +3,16 @@
 
 var backgroundTexture: Texture;
 var foregroundTexture: Texture;
-var frameTexture: Texture;
 
-var healthWidth: int=199;
-var healthHeight: int=30;
+var healthWidth: int=90;
+var healthHeight: int=18;
 
-var healthMarginLeft: int=41;
-var healthMarginTop: int=38;
+var healthMarginLeft: int=7;
+var healthMarginTop: int=34;
 
-var frameWidth: int=266;
-var frameHeight: int=65;
-
-var frameMarginLeft: int=10;
-var frameMarginTop: int=10;
 
 function OnGUI () {
-	GUI.DrawTexture(Rect(frameMarginLeft,frameMarginTop,frameMarginLeft+ frameWidth,frameMarginTop + frameHeight),backgroundTexture,ScaleMode.ScaleToFit,true,0);
+	GUI.DrawTexture(Rect(healthMarginLeft,healthMarginTop,healthMarginLeft+ healthWidth,healthHeight),backgroundTexture,ScaleMode.ScaleToFit,true,0);
 	GUI.DrawTexture(Rect(healthMarginLeft,healthMarginTop,healthMarginLeft+ healthWidth, healthHeight),foregroundTexture,ScaleMode.ScaleAndCrop,true,0);
-	GUI.DrawTexture(Rect(frameMarginLeft,frameMarginTop,frameMarginLeft+ frameWidth,frameMarginTop + frameHeight),frameTexture,ScaleMode.ScaleToFit,true,0);
 }
 
