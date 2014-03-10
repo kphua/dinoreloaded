@@ -39,6 +39,12 @@ private var screenMovementSpace : Quaternion;
 private var screenMovementForward : Vector3;
 private var screenMovementRight : Vector3;
 
+
+//*****   My Variables here. *****/
+private var touchDetector : TouchDetector;
+private var cursorLastPosition : Vector3;
+private var cursorGameObject : GameObject;
+
 function Awake () {		
 	motor.movementDirection = Vector2.zero;
 	motor.facingDirection = Vector2.zero;
@@ -54,7 +60,7 @@ function Awake () {
 	
 	initOffsetToPlayer = mainCameraTransform.position - character.position;
 	
-	#if UNITY_IPHONE || UNITY_ANDROID || UNITY_WP8 || UNITY_BLACKBERRY || UNITY_TIZEN
+	#if UNITY_IPHONE || UNITY_WP8 || UNITY_BLACKBERRY || UNITY_ANDROID
 //		if (joystickPrefab) {
 //			// Create left joystick
 //			var joystickLeftGO : GameObject = Instantiate (joystickPrefab) as GameObject;
@@ -83,17 +89,22 @@ function Awake () {
 }
 
 function Start () {
-//	#if UNITY_IPHONE || UNITY_ANDROID || UNITY_WP8 || UNITY_BLACKBERRY || UNITY_TIZEN
-//		// Move to right side of screen
+	#if UNITY_IPHONE || UNITY_ANDROID || UNITY_WP8 || UNITY_BLACKBERRY
+		// Move to right side of screen
 //		var guiTex : GUITexture = joystickRightGO.GetComponent.<GUITexture> ();
 //		guiTex.pixelInset.x = Screen.width - guiTex.pixelInset.x - guiTex.pixelInset.width;			
-//	#endif	
+	#endif	
 	
 	// it's fine to calculate this on Start () as the camera is static in rotation
 	
 	screenMovementSpace = Quaternion.Euler (0, mainCameraTransform.eulerAngles.y, 0);
 	screenMovementForward = screenMovementSpace * Vector3.forward;
 	screenMovementRight = screenMovementSpace * Vector3.right;	
+	
+	/**** My addition ***/
+	var mainCameraObject : GameObject = GameObject.FindWithTag ("MainCamera");
+	if (mainCameraObject != null) 
+		touchDetector = mainCameraObject.GetComponent.<TouchDetector>();
 }
 
 //function OnDisable () {
@@ -112,89 +123,30 @@ function Start () {
 //		joystickRight.enabled = true;
 //}
 
-private var button8Down : boolean = false;
-private var button9Down : boolean = false;
-private var moveF : int;
-private var moveB : int;
-
-function OnGUI()
-{
-	//GUI.Label(new Rect(10,10,100,25),"8: "+moveF+" ("+button8Down+")");
-	//GUI.Label(new Rect(10,40,100,25),"9: "+moveB+" ("+button9Down+")");
-	//GUI.Label(new Rect(10,70,140,25),"JS Connected: "+GLOBAL.isJSConnected);
-}
-
 function Update () {
 	// HANDLE CHARACTER MOVEMENT DIRECTION
-
-//	if(GLOBAL.isJSConnected)
-//	{
-//		if(Input.GetButtonDown("Joystick button 8"))
-//		{
-//			button8Down = true;
-//		}
-//
-//		if(Input.GetButtonUp("Joystick button 8"))
-//		{
-//			button8Down = false;
-//		}
-//
-//		if(Input.GetButtonDown("Joystick button 9"))
-//		{
-//			button9Down = true;
-//		}
-//
-//		if(Input.GetButtonUp("Joystick button 9"))
-//		{
-//			button9Down = false;
-//		}
-//
-//		// Inverted logic might be more comfortable
-//		if(!button8Down)
-//		{
-//			moveF = 1;
-//		}
-//		else
-//		{
-//			moveF = 0;
-//		}
-//
-//		if(button9Down)
-//		{
-//			moveB = 1;
-//		}
-//		else
-//		{
-//			moveB = 0;
-//		}
-//	}
-
-	#if UNITY_ANDROID || UNITY_WP8 || UNITY_BLACKBERRY || UNITY_TIZEN
+	#if UNITY_IPHONE || UNITY_WP8 || UNITY_BLACKBERRY
 //		motor.movementDirection = joystickLeft.position.x * screenMovementRight + joystickLeft.position.y * screenMovementForward;
-	#elif UNITY_IPHONE
-		if(GLOBAL.isJSConnected)
-		{
-			if (GLOBAL.isJSExtended)
-				motor.movementDirection = Input.GetAxis("Horizontal") * screenMovementRight + Input.GetAxis("Vertical") * screenMovementForward;
-			else
-				motor.movementDirection = -moveB * (motor.facingDirection*2) + moveF * (motor.facingDirection*2);
+	#elif UNITY_ANDROID
+		if (touchDetector.isHover()) {
+			var fingerScreenPosition : Vector3 = Vector3(touchDetector.getFingerTouchX(), Screen.height - touchDetector.getFingerTouchY(), 0);
+			var fingerWorldPosition : Vector3 = ScreenPointToWorldPointOnPlane (fingerScreenPosition, playerMovementPlane, mainCamera);
+			motor.movementDirection = (fingerWorldPosition - character.position);
+			motor.movementDirection.y = 0;
 		}
 		else
-		{
-//			motor.movementDirection = joystickLeft.position.x * screenMovementRight + joystickLeft.position.y * screenMovementForward;
-		}
-
+			motor.movementDirection = Vector3(0, 0, 0);							
 	#else
 		motor.movementDirection = Input.GetAxis ("Horizontal") * screenMovementRight + Input.GetAxis ("Vertical") * screenMovementForward;
 	#endif
-		
-		//Debug.Log("H:"+Input.GetAxis ("Horizontal"));
-		//Debug.Log("3rd:"+Input.GetAxis ("3rdAxis"));
-		//Debug.Log("J3rd:"+Input.GetAxis ("Joystick 3rdAxis"));
+	
+	
+	
 	// Make sure the direction vector doesn't exceed a length of 1
 	// so the character can't move faster diagonally than horizontally or vertically
 	if (motor.movementDirection.sqrMagnitude > 1)
 		motor.movementDirection.Normalize();
+	
 	
 	
 	// HANDLE CHARACTER FACING DIRECTION AND SCREEN FOCUS POINT
@@ -215,7 +167,7 @@ function Update () {
 	
 	var cameraAdjustmentVector : Vector3 = Vector3.zero;
 	
-	#if UNITY_ANDROID || UNITY_WP8 || UNITY_BLACKBERRY || UNITY_TIZEN
+	#if UNITY_IPHONE || UNITY_WP8 || UNITY_BLACKBERRY
 	
 		// On mobiles, use the thumb stick and convert it into screen movement space
 //		motor.facingDirection = joystickRight.position.x * screenMovementRight + joystickRight.position.y * screenMovementForward;
@@ -224,41 +176,41 @@ function Update () {
 	
 	#else
 	
-		//#if !UNITY_EDITOR && (UNITY_XBOX360 || UNITY_PS3 || UNITY_IPHONE)
-		#if (UNITY_XBOX360 || UNITY_PS3 || UNITY_IPHONE)
-			// On consoles use the analog sticks
-			var axisX : float;
-			var axisY : float;
+		#if !UNITY_EDITOR && (UNITY_XBOX360 || UNITY_PS3)
 
-			if(GLOBAL.isJSConnected)
-			{
-				if (GLOBAL.isJSExtended)
-				{
-					axisX = Input.GetAxis("RightHorizontal");
-					axisY = Input.GetAxis("RightVertical");
-					motor.facingDirection = axisX * screenMovementRight + axisY * screenMovementForward;
-					//cameraAdjustmentVector = motor.facingDirection;
-				}
-				else
-				{
-					axisX = Input.GetAxis("Horizontal");
-					axisY = Input.GetAxis("Vertical");
-					motor.facingDirection = axisX * screenMovementRight + axisY * screenMovementForward;
-				}
-			}
-			else
-			{
-//				motor.facingDirection = joystickRight.position.x * screenMovementRight + joystickRight.position.y * screenMovementForward;
-//				cameraAdjustmentVector = motor.facingDirection;
-			}		
+			// On consoles use the analog sticks
+			var axisX : float = Input.GetAxis("LookHorizontal");
+			var axisY : float = Input.GetAxis("LookVertical");
+			motor.facingDirection = axisX * screenMovementRight + axisY * screenMovementForward;
+	
+			cameraAdjustmentVector = motor.facingDirection;		
 		
 		#else
 	
 			// On PC, the cursor point is the mouse position
 			var cursorScreenPosition : Vector3 = Input.mousePosition;
+			
+			#if UNITY_ANDROID
+				if (touchDetector.isPenPressed())
+					cursorScreenPosition = Vector3(touchDetector.getPenTouchX(), Screen.height - touchDetector.getPenTouchY(), 0);
+				else if (touchDetector.isFingerPressed())
+					cursorScreenPosition = Vector3(touchDetector.getFingerTouchX(), Screen.height - touchDetector.getFingerTouchY(), 0);
+				else if (touchDetector.isHover())
+					cursorScreenPosition = Vector3(touchDetector.getHoverX(), Screen.height - touchDetector.getHoverY(), 0);
+				else
+					cursorScreenPosition = cursorLastPosition;
+				
+				cursorLastPosition = cursorScreenPosition;
+			#endif
+			
+			
+
 						
 			// Find out where the mouse ray intersects with the movement plane of the player
 			var cursorWorldPosition : Vector3 = ScreenPointToWorldPointOnPlane (cursorScreenPosition, playerMovementPlane, mainCamera);
+			
+			
+			
 			
 			var halfWidth : float = Screen.width / 2.0f;
 			var halfHeight : float = Screen.height / 2.0f;
@@ -277,8 +229,7 @@ function Update () {
 			motor.facingDirection.y = 0;			
 			
 			// Draw the cursor nicely
-			HandleCursorAlignment (cursorWorldPosition);
-			
+			HandleCursorAlignment (cursorWorldPosition);			
 		#endif
 		
 	#endif
@@ -310,6 +261,22 @@ public static function ScreenPointToWorldPointOnPlane (screenPoint : Vector3, pl
 }
 
 function HandleCursorAlignment (cursorWorldPosition : Vector3) {
+	#if UNITY_ANDROID
+		if (touchDetector.isHover() || touchDetector.isPenPressed())
+		{
+			if (cursorPrefab && !cursorObject) {
+				cursorGameObject = Instantiate (cursorPrefab) as GameObject;
+				cursorObject = cursorGameObject.transform;
+			}
+		}
+		else
+		{
+			Destroy(cursorGameObject);
+			Destroy(cursorObject);
+			cursorObject = null;
+		}
+	#endif
+
 	if (!cursorObject)
 		return;
 	

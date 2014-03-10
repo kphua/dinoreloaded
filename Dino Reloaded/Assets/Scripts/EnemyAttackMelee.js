@@ -2,12 +2,12 @@
 
 // Melee attack of the enemy 
 
-private var Health:GameObject;
+private var HealthCounter:GameObject;
 private var healthBarScript:HealthBarScript;
 
 function Start(){
-	Health = GameObject.Find("Health");
-	healthBarScript = Health.GetComponent(HealthBarScript);
+	HealthCounter = GameObject.Find("HealthCounter");
+	healthBarScript = HealthCounter.GetComponent(HealthBarScript);
 
 	healthBarScript.healthWidth = 90; 
 	
@@ -22,7 +22,7 @@ function OnCollisionEnter(collision: Collision){
 }
 
 function reduceHealth(){
-	if(healthBarScript.healthWidth > 2){
+	if(healthBarScript.healthWidth > 0){
 		healthBarScript.healthWidth = healthBarScript.healthWidth - 5;
 	}
 	
