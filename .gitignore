@@ -1,0 +1,11 @@
+*.csproj
+*.unityproj
+*.sln
+*.userprefs
+*.user
+*.dwlt
+*.dll
+*.mdb
+Dino Reloaded/Library/ScriptAssemblies/CompilationCompleted.txt
+Dino Reloaded/Library/assetDatabase3
+Dino Reloaded/Library/expandedItems
