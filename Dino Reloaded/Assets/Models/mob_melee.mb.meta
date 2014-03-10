@@ -29,6 +29,9 @@ ModelImporter:
     100046: pSphere3
     100048: softMod1Handle
     100050: transform1
+    100052: group11
+    100054: group12
+    100056: group13
     400000: group
     400002: group1
     400004: group10
@@ -55,6 +58,9 @@ ModelImporter:
     400046: pSphere3
     400048: softMod1Handle
     400050: transform1
+    400052: group11
+    400054: group12
+    400056: group13
     2300000: pasted__pasted__pSphere2
     2300002: pasted__pPyramid1
     2300004: pasted__pSphere2
@@ -92,7 +98,7 @@ ModelImporter:
     isReadable: 1
   meshes:
     lODScreenPercentages: []
-    globalScale: 1
+    globalScale: 2
     meshCompression: 0
     addColliders: 0
     importBlendShapes: 1

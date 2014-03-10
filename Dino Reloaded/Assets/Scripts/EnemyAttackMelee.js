@@ -1,11 +1,13 @@
 ﻿#pragma strict
 
+// Melee attack of the enemy 
+
 private var Health:GameObject;
 private var healthBarScript:HealthBarScript;
 
 function Start(){
 	Health = GameObject.Find("Health");
-	healthBarScript = Health.GetComponent("HealthBarScript");
+	healthBarScript = Health.GetComponent(HealthBarScript);
 
 	healthBarScript.healthWidth = 90; 
 	
